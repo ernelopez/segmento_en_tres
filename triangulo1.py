@@ -4,7 +4,7 @@ import pandas as pd
 
 st.title("Simulación: partir un segmento y formar un triángulo")
 
-# entrada del usuario
+# input
 n = st.number_input(
     "Cantidad de ensayos",
     min_value=1,
@@ -12,35 +12,43 @@ n = st.number_input(
     value=1000
 )
 
-# simulación
-x = np.random.rand(n)
-y = np.random.rand(n)
+# inicializar estado
+if "df" not in st.session_state:
+    st.session_state.df = None
+    st.session_state.prob = None
 
-a = np.minimum(x, y)
-b = np.maximum(x, y)
+# botón
+if st.button("Ejecutar simulación"):
+    x = np.random.rand(n)
+    y = np.random.rand(n)
 
-l1 = a
-l2 = b - a
-l3 = 1 - b
+    a = np.minimum(x, y)
+    b = np.maximum(x, y)
 
-# condición de triángulo
-forma_triangulo = np.maximum.reduce([l1, l2, l3]) < 0.5
+    l1 = a
+    l2 = b - a
+    l3 = 1 - b
 
-# tabla
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "l1": l1,
-    "l2": l2,
-    "l3": l3,
-    "¿Triángulo?": np.where(forma_triangulo, "✔", "✘")
-})
+    forma_triangulo = np.maximum.reduce([l1, l2, l3]) < 0.5
 
-st.subheader("Resultados de los ensayos")
-st.dataframe(df)
+    st.session_state.df = pd.DataFrame({
+        "Corte 1": x,
+        "Corte 2": y,
+        "Lado 1": l1,
+        "Lado 2": l2,
+        "Lado 3": l3,
+        "¿Triángulo?": np.where(forma_triangulo, "✔", "✘")
+    })
 
-# probabilidad estimada
-prob = forma_triangulo.mean()
+    st.session_state.prob = forma_triangulo.mean()
 
-st.subheader("Probabilidad estimada")
-st.write(f"{prob:.5f}  ({forma_triangulo.sum()} / {n})")
+# salida
+if st.session_state.df is not None:
+    st.subheader("Resultados de los ensayos")
+    st.dataframe(st.session_state.df)
+
+    st.subheader("Probabilidad estimada")
+    st.write(
+        f"{st.session_state.prob:.5f} "
+        f"({(st.session_state.df['¿Triángulo?'] == '✔').sum()} / {n})"
+    )
