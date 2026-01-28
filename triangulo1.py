@@ -8,8 +8,9 @@ st.title("Simulación: partir un segmento y formar un triángulo")
 n = st.number_input(
     "Cantidad de ensayos",
     min_value=1,
+    max_value=10,
     step=1,
-    value=1000
+    value=1
 )
 
 # inicializar estado
